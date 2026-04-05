@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>3D Option Passcode</title>
+<style>
+body { font-family: Arial, sans-serif; text-align:center; margin:20px; background:#f4f4f4;}
+.container { background:#fff; padding:20px; border-radius:12px; max-width:400px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+label { display:block; margin-top:10px; font-weight:bold; }
+input[type="number"], input[type="range"] { width:100%; margin-top:5px; }
+table { margin:20px auto; border-collapse: collapse; width:80%; }
+th, td { border:1px solid #ccc; padding:8px; text-align:center; }
+th { background:#e0e0e0; }
+.passcode { font-size:1.8em; color:#007bff; font-weight:bold; margin-top:20px; }
+.pay-btn { margin-top:20px; padding:10px; background:#28a745; color:#fff; border:none; border-radius:6px; cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>3D Option Passcode</h1>
+
+<label>B:</label><input type="number" id="B" value="100">
+<label>S:</label><input type="number" id="S" value="50">
+<label>V:</label><input type="number" id="V" value="1">
+<label>r:</label><input type="number" id="r" value="0.05" step="0.01">
+<label>T:</label><input type="number" id="T" value="1" step="0.1">
+
+<label>T1:</label><input type="range" id="sliderT1" min="0.1" max="3" step="0.01" value="1">
+<label>T2:</label><input type="range" id="sliderT2" min="0.1" max="3" step="0.01" value="2">
+
+<table>
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>O2</td><td id="O2_val">-</td></tr>
+<tr><td>O4</td><td id="O4_val">-</td></tr>
+<tr><td>S2</td><td id="S2_val">-</td></tr>
+<tr><td>M1</td><td id="M1_val">???</td></tr>
+<tr><td>M2</td><td id="M2_val">???</td></tr>
+</table>
+
+<button class="pay-btn" onclick="goToPayment()">結果を見る（有料）</button>
+
+<div class="passcode" id="passcode">-</div>
+</div>
+
+<script>
+const B_input = document.getElementById("B");
+const S_input = document.getElementById("S");
+const V_input = document.getElementById("V");
+const r_input = document.getElementById("r");
+const T_input = document.getElementById("T");
+const T1_slider = document.getElementById("sliderT1");
+const T2_slider = document.getElementById("sliderT2");
+
+const O2_val = document.getElementById("O2_val");
+const O4_val = document.getElementById("O4_val");
+const S2_val = document.getElementById("S2_val");
+const M1_val = document.getElementById("M1_val");
+const M2_val = document.getElementById("M2_val");
+const passcode_div = document.getElementById("passcode");
+
+function calculatePasscode() {
+let B = parseFloat(B_input.value) || 0;
+let S = parseFloat(S_input.value) || 0;
+let V = parseFloat(V_input.value) || 1;
+let r = parseFloat(r_input.value) || 0;
+let T = parseFloat(T_input.value) || 1;
+let T1 = parseFloat(T1_slider.value) || 1;
+let T2 = parseFloat(T2_slider.value) || 1;
+
+let O1 = (B - S) / T1;
+let O2 = B - S - O1;
+let O3 = (B - S) / T2;
+let O4 = B - S - O3;
+let S2 = B - O2 - O4;
+
+let denominator = V * Math.exp(-r * T);
+let M1 = (B * V - O2) / denominator;
+let M2 = (B * V - O4) / denominator;
+
+let O2_int = Math.floor(O2);
+let O4_int = Math.floor(O4);
+let S2_int = Math.floor(S2);
+let M1_int = Math.floor(M1);
+let M2_int = Math.floor(M2);
+
+O2_val.innerText = O2_int;
+O4_val.innerText = O4_int;
+S2_val.innerText = S2_int;
+
+// 🔒 有料部分は隠す
+M1_val.innerText = "???";
+M2_val.innerText = "???";
+
+// パスコード
+passcode_div.innerText = "" + O2_int + O4_int + S2_int;
+
+// 結果を一時保存（ローカル）
+localStorage.setItem("M1", M1_int);
+localStorage.setItem("M2", M2_int);
+}
+
+// 決済リンクへ
+function goToPayment() {
+  window.location.href = "https://buy.stripe.com/xxxxxx"; // ←ここにあなたのリンク
+}
+
+[B_input, S_input, V_input, r_input, T_input, T1_slider, T2_slider]
+.forEach(el => el.addEventListener("input", calculatePasscode));
+
+calculatePasscode();
+</script>
+
+</body>
+</html>
