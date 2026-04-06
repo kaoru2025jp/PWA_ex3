@@ -117,8 +117,15 @@ calculatePasscode();
 <!DOCTYPE html>
 <html>
 <body>
+
 <h1>計算結果</h1>
 <div id="result"></div>
+
+<br><br>
+
+<a href="index.html">
+<button>戻る</button>
+</a>
 
 <script>
 let M1 = localStorage.getItem("M1");
@@ -127,5 +134,6 @@ let M2 = localStorage.getItem("M2");
 document.getElementById("result").innerText =
   "M1: " + M1 + " / M2: " + M2;
 </script>
+
 </body>
 </html>
